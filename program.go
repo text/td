@@ -11,49 +11,48 @@ import (
 )
 
 type Program struct {
-	create func(name string) (io.WriteCloser, error)
-	dir    string
-	envDir string
-	name   string
-	open   func(name string) (io.ReadCloser, error)
-	usrDir func() string
-
-	started time.Time
-
-	exactly          string
-	prefix           string
-	records          []Record
-	roundDuration    time.Duration
-	truncateDuration time.Duration
+	create        func(name string) (io.WriteCloser, error)
+	dir           string
+	envDir        string
+	name          string
+	open          func(name string) (io.ReadCloser, error)
+	prefix        string
+	printDuration bool
+	printRange    bool
+	records       []Record
+	roundDur      time.Duration
+	started       time.Time
+	truncateDur   time.Duration
+	usrDir        func() string
 }
 
-func (p *Program) Load() {
+func (p *Program) Load() error {
 	f, err := p.open(p.Name())
-	if err != nil && !os.IsNotExist(err) {
-		logger.Println(err)
-		return
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
 	}
 	defer f.Close()
 	dec := json.NewDecoder(f)
-	err = dec.Decode(&p.records)
-	if err != nil {
-		logger.Println(err)
-	}
+	return dec.Decode(&p.records)
 }
 
-func (p *Program) Save() {
-	if _, err := os.Stat(p.Dir()); os.IsNotExist(err) {
-		_ = os.Mkdir(p.dir, 0700)
+func (p *Program) Save() error {
+	_, err := os.Stat(p.Dir())
+	if os.IsNotExist(err) {
+		err = os.Mkdir(p.dir, 0700)
+	}
+	if err != nil {
+		return err
 	}
 	w, err := p.create(p.Name())
 	if err != nil {
-		logger.Fatalln(err)
+		return err
 	}
 	enc := json.NewEncoder(w)
-	err = enc.Encode(p.records)
-	if err != nil {
-		logger.Fatalln(err)
-	}
+	return enc.Encode(p.records)
 }
 
 func (p *Program) Dir() string {
@@ -87,46 +86,71 @@ func (p *Program) Add(t time.Time, text string) {
 	})
 }
 
-func (p *Program) Print(t time.Time, w io.Writer) {
+const (
+	pre = "\033[1m"
+	suf = "\033[0m"
+)
+
+func (p *Program) Print(t time.Time) {
 	fmt.Println(p.started.Format("Monday, January 2, 2006"))
 	td := time.Duration(0)
 	for _, r := range p.records {
 		d := r.Dur(t)
-		pre := " "
-		b := p.match(r)
-		if b {
-			pre = "+"
+		include := p.include(r)
+		if include {
 			td += d
+			fmt.Print(pre)
 		}
-		fmt.Print(pre)
-		fmt.Printf(
-			"%v %v %v\n",
-			p.formatRange(r),
-			p.formatDur(d),
-			r.Text)
+		if p.printRange {
+			fmt.Printf("%s ", p.formatRange(r))
+		}
+		if p.printDuration {
+			fmt.Printf("%s ", p.formatDur(d))
+		}
+		fmt.Print(r.Text)
+		if include {
+			fmt.Print(suf)
+		}
+		fmt.Println()
 	}
-	fmt.Println(p.formatDur(td))
+	if td > 0 {
+		fmt.Println(strings.Repeat("-", p.seplen()))
+		fmt.Print(pre)
+		fmt.Print(strings.Repeat(" ", p.indent()))
+		fmt.Print(p.formatDur(td))
+		fmt.Print(suf)
+		fmt.Println()
+	}
 }
 
-func (p *Program) match(r Record) bool {
-	return p.exactly != "" && p.exactly == r.Text ||
-		p.prefix != "" && strings.HasPrefix(r.Text, p.prefix)
+func (p *Program) seplen() int {
+	return p.indent() + len("21h59m")
+}
+
+func (p *Program) indent() int {
+	if p.printRange {
+		return len([]rune("15:04 – 15:04 "))
+	}
+	return 0
+}
+
+func (p *Program) include(r Record) bool {
+	return p.prefix != "" && strings.HasPrefix(r.Text, p.prefix)
 }
 
 func (p *Program) formatRange(r Record) string {
 	format := func(t time.Time) string {
-		const layout = "15:04"
 		if t.IsZero() {
-			return strings.Repeat(" ", len(layout))
+			return strings.Repeat(" ", len("15:04"))
 		}
-		return t.Format(layout)
+		return t.Format("15:04")
 	}
 	return fmt.Sprintf("%v – %v", format(r.Start), format(r.Stop))
 }
 
 func (p *Program) formatDur(d time.Duration) string {
-	d = d.Round(p.roundDuration)
-	d = d.Truncate(p.truncateDuration)
+	d = d.Round(p.roundDur)
+	d = d.Truncate(p.truncateDur)
 	s := d.String()
 	if strings.HasSuffix(s, "m0s") {
 		s = strings.TrimSuffix(s, "0s")
@@ -134,5 +158,5 @@ func (p *Program) formatDur(d time.Duration) string {
 	if strings.HasSuffix(s, "h0m") {
 		s = strings.TrimSuffix(s, "0m")
 	}
-	return s
+	return fmt.Sprintf("%6s", s)
 }

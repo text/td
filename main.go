@@ -9,36 +9,37 @@ import (
 	"time"
 )
 
-var (
-	logger = log.New(os.Stdout, "today: ", log.Lshortfile)
-	p      *Program
-)
+var logger = log.New(os.Stdout, "today: ", log.Lshortfile)
 
-func init() {
-	p = &Program{
+func main() {
+	p := &Program{
 		create:  create,
 		envDir:  os.Getenv("TODAYPATH"),
 		open:    open,
 		started: time.Now(),
 		usrDir:  usrDir,
 	}
-	flag.DurationVar(&p.roundDuration, "roundDuration", time.Duration(0), "")
-	flag.DurationVar(&p.truncateDuration, "truncateDuration", time.Duration(0), "")
+	flag.BoolVar(&p.printDuration, "printDuration", true, "")
+	flag.BoolVar(&p.printRange, "printRange", false, "")
+	flag.DurationVar(&p.roundDur, "roundDuration", time.Duration(time.Minute), "")
+	flag.DurationVar(&p.truncateDur, "truncateDuration", time.Duration(0), "")
 	flag.StringVar(&p.dir, "homeDir", "", "home directory, if not set $TODAYPATH or $HOME/.today is used")
-	flag.StringVar(&p.exactly, "exactly", "", "")
-	flag.StringVar(&p.prefix, "hasPrefix", "", "")
-}
-
-func main() {
+	flag.StringVar(&p.prefix, "prefix", "", "")
 	flag.Parse()
-	p.Load()
+
+	if err := p.Load(); err != nil {
+		logger.Fatal(err)
+	}
 	text := strings.Join(flag.Args(), " ")
+	t := time.Now()
 	if flag.NArg() == 0 {
-		p.Print(p.started, os.Stdout)
+		p.Print(t)
 		return
 	}
-	p.Add(time.Now(), text)
-	p.Save()
+	p.Add(t, text)
+	if err := p.Save(); err != nil {
+		logger.Fatal(err)
+	}
 }
 
 func open(name string) (r io.ReadCloser, err error) {
