@@ -41,13 +41,6 @@ func (p *Program) Load() error {
 }
 
 func (p *Program) Save() error {
-	_, err := os.Stat(p.Dir())
-	if os.IsNotExist(err) {
-		err = os.Mkdir(p.dir, 0700)
-	}
-	if err != nil {
-		return err
-	}
 	w, err := p.create(p.Name())
 	if err != nil {
 		return err

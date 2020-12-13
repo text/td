@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"strings"
 	"time"
 )
@@ -50,7 +51,14 @@ func open(name string) (r io.ReadCloser, err error) {
 }
 
 func create(name string) (w io.WriteCloser, err error) {
-	w, err = os.Create(name)
+	dir, _ := path.Split(name)
+	_, err = os.Stat(dir)
+	if os.IsNotExist(err) {
+		err = os.Mkdir(dir, 0700)
+	}
+	if err == nil {
+		w, err = os.Create(name)
+	}
 	return
 }
 
