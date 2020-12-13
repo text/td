@@ -16,7 +16,9 @@ func main() {
 		create:  create,
 		envDir:  os.Getenv("TODAYPATH"),
 		open:    open,
+		pre:     "\033[1m",
 		started: time.Now(),
+		suf:     "\033[0m",
 		usrDir:  usrDir,
 	}
 	flag.BoolVar(&p.printDuration, "printDuration", true, "")

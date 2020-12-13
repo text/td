@@ -16,6 +16,7 @@ type Program struct {
 	envDir        string
 	name          string
 	open          func(name string) (io.ReadCloser, error)
+	pre, suf      string
 	prefix        string
 	printDuration bool
 	printRange    bool
@@ -86,11 +87,6 @@ func (p *Program) Add(t time.Time, text string) {
 	})
 }
 
-const (
-	pre = "\033[1m"
-	suf = "\033[0m"
-)
-
 func (p *Program) Print(t time.Time) {
 	fmt.Println(p.started.Format("Monday, January 2, 2006"))
 	td := time.Duration(0)
@@ -99,7 +95,7 @@ func (p *Program) Print(t time.Time) {
 		include := p.include(r)
 		if include {
 			td += d
-			fmt.Print(pre)
+			fmt.Print(p.pre)
 		}
 		if p.printRange {
 			fmt.Printf("%s ", p.formatRange(r))
@@ -109,16 +105,16 @@ func (p *Program) Print(t time.Time) {
 		}
 		fmt.Print(r.Text)
 		if include {
-			fmt.Print(suf)
+			fmt.Print(p.suf)
 		}
 		fmt.Println()
 	}
 	if td > 0 {
 		fmt.Println(strings.Repeat("-", p.seplen()))
-		fmt.Print(pre)
+		fmt.Print(p.pre)
 		fmt.Print(strings.Repeat(" ", p.indent()))
 		fmt.Print(p.formatDur(td))
-		fmt.Print(suf)
+		fmt.Print(p.suf)
 		fmt.Println()
 	}
 }
