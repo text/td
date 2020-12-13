@@ -24,6 +24,7 @@ func main() {
 	}
 	flag.BoolVar(&p.printDuration, "printDuration", true, "")
 	flag.BoolVar(&p.printRange, "printRange", false, "")
+	flag.DurationVar(&p.offset, "offset", time.Duration(0), "")
 	flag.DurationVar(&p.roundDur, "roundDuration", time.Duration(time.Minute), "")
 	flag.DurationVar(&p.truncateDur, "truncateDuration", time.Duration(0), "")
 	flag.StringVar(&p.dir, "homeDir", "", "home directory, if not set $TODAYPATH or $HOME/.today is used")
@@ -35,6 +36,9 @@ func main() {
 	}
 	text := strings.Join(flag.Args(), " ")
 	t := time.Now()
+	if p.offset != 0 {
+		t = t.Add(p.offset)
+	}
 	if flag.NArg() == 0 {
 		p.Print(t)
 		return

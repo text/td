@@ -15,6 +15,7 @@ type Program struct {
 	dir           string
 	envDir        string
 	name          string
+	offset        time.Duration
 	open          func(name string) (io.ReadCloser, error)
 	pre, suf      string
 	prefix        string
