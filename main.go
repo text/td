@@ -14,6 +14,7 @@ import (
 var (
 	logger  = log.New(os.Stdout, "today: ", log.Lshortfile)
 	pattern = flag.String("pattern", "", "")
+	start   = flag.Duration("start", time.Duration(0), "")
 )
 
 func main() {
@@ -37,12 +38,25 @@ func main() {
 	if *pattern != "" {
 		p.pattern = regexp.MustCompile(*pattern)
 	}
-
 	if err := p.Load(); err != nil {
 		logger.Fatal(err)
 	}
 	text := strings.Join(flag.Args(), " ")
-	t := time.Now()
+	t := func() time.Time {
+		if *start <= 0 {
+			return time.Now()
+		}
+		return time.Date(
+			p.started.Year(),
+			p.started.Month(),
+			p.started.Day(),
+			0,
+			0,
+			0,
+			0,
+			p.started.Location()).
+			Add(*start)
+	}()
 	if p.offset != 0 {
 		t = t.Add(p.offset)
 	}
