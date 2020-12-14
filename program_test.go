@@ -90,7 +90,7 @@ func TestName(t *testing.T) {
 	}{
 		{"dir", "/dir", "", "", "/dir/20201221"},
 		{"env", "", "/env", "", "/env/20201221"},
-		{"usr", "", "", "/usr", "/usr/.today/20201221"},
+		{"usr", "", "", "/usr", "/usr/.td/20201221"},
 	}
 	for _, d := range td {
 		t.Run(d.name, func(t *testing.T) {

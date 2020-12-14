@@ -56,7 +56,7 @@ func (p *Program) Dir() string {
 		p.dir = p.envDir
 	}
 	if p.dir == "" {
-		p.dir = path.Join(p.usrDir(), ".today")
+		p.dir = path.Join(p.usrDir(), ".td")
 	}
 	return p.dir
 }

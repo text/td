@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	logger  = log.New(os.Stdout, "today: ", log.Lshortfile)
+	logger  = log.New(os.Stdout, "td: ", log.Lshortfile)
 	pattern = flag.String("pattern", "", "")
 	start   = flag.Duration("start", time.Duration(0), "")
 )
@@ -20,7 +20,7 @@ var (
 func main() {
 	p := &Program{
 		create:  create,
-		envDir:  os.Getenv("TODAYPATH"),
+		envDir:  os.Getenv("TDPATH"),
 		open:    open,
 		pre:     "\033[1m",
 		started: time.Now(),
@@ -32,7 +32,7 @@ func main() {
 	flag.DurationVar(&p.offset, "offset", time.Duration(0), "")
 	flag.DurationVar(&p.roundDur, "roundDuration", time.Duration(time.Minute), "")
 	flag.DurationVar(&p.truncateDur, "truncateDuration", time.Duration(0), "")
-	flag.StringVar(&p.dir, "homeDir", "", "home directory, if not set $TODAYPATH or $HOME/.today is used")
+	flag.StringVar(&p.dir, "homeDir", "", "home directory, if not set $TDPATH or $HOME/.td is used")
 	flag.Parse()
 
 	if *pattern != "" {
