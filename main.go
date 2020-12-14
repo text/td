@@ -6,11 +6,15 @@ import (
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 )
 
-var logger = log.New(os.Stdout, "today: ", log.Lshortfile)
+var (
+	logger  = log.New(os.Stdout, "today: ", log.Lshortfile)
+	pattern = flag.String("pattern", "", "")
+)
 
 func main() {
 	p := &Program{
@@ -28,8 +32,11 @@ func main() {
 	flag.DurationVar(&p.roundDur, "roundDuration", time.Duration(time.Minute), "")
 	flag.DurationVar(&p.truncateDur, "truncateDuration", time.Duration(0), "")
 	flag.StringVar(&p.dir, "homeDir", "", "home directory, if not set $TODAYPATH or $HOME/.today is used")
-	flag.StringVar(&p.prefix, "prefix", "", "")
 	flag.Parse()
+
+	if *pattern != "" {
+		p.pattern = regexp.MustCompile(*pattern)
+	}
 
 	if err := p.Load(); err != nil {
 		logger.Fatal(err)

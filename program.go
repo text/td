@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -17,8 +18,8 @@ type Program struct {
 	name          string
 	offset        time.Duration
 	open          func(name string) (io.ReadCloser, error)
+	pattern       *regexp.Regexp
 	pre, suf      string
-	prefix        string
 	printDuration bool
 	printRange    bool
 	records       []Record
@@ -125,7 +126,7 @@ func (p *Program) indent() int {
 }
 
 func (p *Program) include(r Record) bool {
-	return p.prefix != "" && strings.HasPrefix(r.Text, p.prefix)
+	return p.pattern != nil && p.pattern.MatchString(r.Text)
 }
 
 func (p *Program) formatRange(r Record) string {

@@ -1,12 +1,15 @@
 package main
 
-import "time"
+import (
+	"regexp"
+	"time"
+)
 
 func Example() {
 	t := time.Date(2020, 12, 21, 19, 30, 0, 0, time.Local)
 	p := &Program{
+		pattern:       regexp.MustCompile("foo"),
 		pre:           ">",
-		prefix:        "foo",
 		printDuration: true,
 		printRange:    true,
 		started:       t,
