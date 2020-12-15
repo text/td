@@ -133,3 +133,27 @@ func TestAdd(t *testing.T) {
 		})
 	}
 }
+
+func TestNewStart(t *testing.T) {
+	m := time.Now()
+	td := []struct {
+		name   string
+		m      time.Time
+		d      time.Duration
+		expect time.Time
+	}{
+		{"negative duration", m, -1, m},
+		{"zero duration", m, 0, time.Date(m.Year(), m.Month(), m.Day(), 0, 0, 0, 0, m.Location())},
+		{"1h duration", m, time.Hour, time.Date(m.Year(), m.Month(), m.Day(), 1, 0, 0, 0, m.Location())},
+		{"23h59m duration", m, 23*time.Hour + 59*time.Minute, time.Date(m.Year(), m.Month(), m.Day(), 23, 59, 0, 0, m.Location())},
+		{"24h duration", m, 24 * time.Hour, m},
+	}
+	for _, d := range td {
+		t.Run(d.name, func(t *testing.T) {
+			actual := newStart(d.m, d.d)
+			if !actual.Equal(d.expect) {
+				t.Errorf("expected start to be %v got %v", d.expect, actual)
+			}
+		})
+	}
+}

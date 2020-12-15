@@ -41,22 +41,7 @@ func main() {
 	if err := p.Load(); err != nil {
 		logger.Fatal(err)
 	}
-	text := strings.Join(flag.Args(), " ")
-	t := func() time.Time {
-		if *start <= 0 {
-			return time.Now()
-		}
-		return time.Date(
-			p.started.Year(),
-			p.started.Month(),
-			p.started.Day(),
-			0,
-			0,
-			0,
-			0,
-			p.started.Location()).
-			Add(*start)
-	}()
+	t := newStart(p.started, *start)
 	if p.offset != 0 {
 		t = t.Add(p.offset)
 	}
@@ -64,6 +49,7 @@ func main() {
 		p.Print(t)
 		return
 	}
+	text := strings.Join(flag.Args(), " ")
 	p.Add(t, text)
 	if err := p.Save(); err != nil {
 		logger.Fatal(err)
@@ -93,4 +79,24 @@ func usrDir() string {
 		logger.Fatalln(err)
 	}
 	return dir
+}
+
+func newStart(t time.Time, d time.Duration) time.Time {
+	if d < 0 || d >= 24*time.Hour {
+		return t
+	}
+	return newTime(t, d)
+}
+
+func newTime(t time.Time, d time.Duration) time.Time {
+	return time.Date(
+		t.Year(),
+		t.Month(),
+		t.Day(),
+		0,
+		0,
+		0,
+		0,
+		t.Location()).
+		Add(d)
 }
