@@ -14,7 +14,7 @@ import (
 var (
 	logger  = log.New(os.Stdout, "td: ", log.Lshortfile)
 	pattern = flag.String("pattern", "", "")
-	start   = flag.Duration("start", time.Duration(0), "")
+	start   = flag.Duration("start", time.Duration(-1), "")
 )
 
 func main() {
