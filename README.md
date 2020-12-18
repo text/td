@@ -19,7 +19,7 @@ Executing `td` command will print current date and all reported activity records
 Sunday, December 13, 2020
 ```
 
-Activity is reported by executing `td` command with non-flag arguments. Non-flag arguments are used as activity text.
+Activity is reported by executing `td start` command following by non-flag arguments. Non-flag arguments are used as activity text.
 
 ```zsh
 % td start putting together README.md
