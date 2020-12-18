@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	logger  = log.New(os.Stdout, "td: ", log.Lshortfile)
-	pattern = flag.String("pattern", "", "")
-	start   = flag.Duration("start", time.Duration(-1), "")
+	expr   = flag.String("expr", "", "")
+	logger = log.New(os.Stdout, "td: ", log.Lshortfile)
+	start  = flag.Duration("start", time.Duration(-1), "")
 )
 
 func main() {
@@ -35,8 +35,8 @@ func main() {
 	flag.StringVar(&p.dir, "homeDir", "", "home directory, if not set $TDPATH or $HOME/.td is used")
 	flag.Parse()
 
-	if *pattern != "" {
-		p.pattern = regexp.MustCompile(*pattern)
+	if *expr != "" {
+		p.re = regexp.MustCompile(*expr)
 	}
 	if err := p.Load(); err != nil {
 		logger.Fatal(err)

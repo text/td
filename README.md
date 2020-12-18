@@ -36,7 +36,7 @@ Sunday, December 13, 2020
 In case of repeating activity (`reading emails`) you can print total duration of this activity by specifying regular expression `-pattern` matching desired text. Activity included in total duration is highlighted and total duration is printed below all reported activity records.
 
 ```zsh
-% td -pattern "reading emails"
+% td -expr "reading emails"
 Sunday, December 13, 2020
    15m putting together README.md
     5m reading emails

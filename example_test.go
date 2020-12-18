@@ -8,7 +8,7 @@ import (
 func Example() {
 	t := time.Date(2020, 12, 21, 19, 30, 0, 0, time.Local)
 	p := &Program{
-		pattern:       regexp.MustCompile("foo"),
+		re:            regexp.MustCompile("foo"),
 		pre:           ">",
 		printDuration: true,
 		printRange:    true,

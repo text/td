@@ -18,7 +18,7 @@ type Program struct {
 	name          string
 	offset        time.Duration
 	open          func(name string) (io.ReadCloser, error)
-	pattern       *regexp.Regexp
+	re            *regexp.Regexp
 	pre, suf      string
 	printDuration bool
 	printRange    bool
@@ -126,7 +126,7 @@ func (p *Program) indent() int {
 }
 
 func (p *Program) include(r Record) bool {
-	return p.pattern != nil && p.pattern.MatchString(r.Text)
+	return p.re != nil && p.re.MatchString(r.Text)
 }
 
 func (p *Program) formatRange(r Record) string {
