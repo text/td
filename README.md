@@ -22,7 +22,7 @@ Sunday, December 13, 2020
 Activity is reported by executing `td` command with non-flag arguments. Non-flag arguments are used as activity text.
 
 ```zsh
-% td putting together README.md
+% td start putting together README.md
 ```
 
 Following execution of `td` command in the same day will print duration of `putting together README.md` activity.

@@ -49,10 +49,13 @@ func main() {
 		p.Print(t)
 		return
 	}
-	text := strings.Join(flag.Args(), " ")
-	p.Add(t, text)
-	if err := p.Save(); err != nil {
-		logger.Fatal(err)
+	cmd, text := cmdText(flag.Args())
+	switch cmd {
+	case "start":
+		p.Add(t, text)
+		if err := p.Save(); err != nil {
+			logger.Fatal(err)
+		}
 	}
 }
 
@@ -99,4 +102,13 @@ func newTime(t time.Time, d time.Duration) time.Time {
 		0,
 		t.Location()).
 		Add(d)
+}
+
+func cmdText(args []string) (cmd, text string) {
+	if len(args) == 0 {
+		return
+	}
+	cmd = args[0]
+	text = strings.Join(args[1:], " ")
+	return
 }
