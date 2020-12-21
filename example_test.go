@@ -1,29 +1,15 @@
 package main
 
-import (
-	"regexp"
-	"time"
-)
+import "os"
 
 func Example() {
-	t := time.Date(2020, 12, 21, 19, 30, 0, 0, time.Local)
-	p := &Program{
-		re:            regexp.MustCompile("foo"),
-		pre:           ">",
-		printDuration: true,
-		printRange:    true,
-		started:       t,
-		suf:           "<",
-	}
-	p.Add(t, "foo")
-	p.Add(t.Add(15*time.Minute), "bar")
-	p.Add(t.Add(30*time.Minute), "foo")
-	p.Print(t.Add(time.Hour))
+	p := NewProgram()
+	p.Option(OutputWriter(os.Stdout))
+	p.ProcessArguments(fakeTime(16, 0), []string{"start", "foo"})
+	p.ProcessArguments(fakeTime(17, 0), []string{"start", "bar"})
+	p.ProcessArguments(fakeTime(17, 15), nil)
 	// Output:
 	// Monday, December 21, 2020
-	// >19:30 – 19:45    15m foo<
-	// 19:45 – 20:00    15m bar
-	// >20:00 –          30m foo<
-	// --------------------
-	// >                 45m<
+	//  1h       foo
+	//    15m    bar
 }

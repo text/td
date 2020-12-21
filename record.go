@@ -1,18 +1,18 @@
 package main
 
-import (
-	"time"
-)
+import "time"
 
 type Record struct {
-	Start time.Time
-	Stop  time.Time
-	Text  string
+	Started  time.Time
+	duration time.Duration
 }
 
-func (r Record) Dur(t time.Time) time.Duration {
-	if r.Stop.IsZero() {
-		return t.Sub(r.Start)
+func (r Record) IsStarted() bool { return !r.Started.IsZero() }
+
+func (r Record) Duration(t time.Time) (d time.Duration) {
+	d += r.duration
+	if r.IsStarted() {
+		d += t.Sub(r.Started)
 	}
-	return r.Stop.Sub(r.Start)
+	return
 }
